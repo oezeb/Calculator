@@ -49,10 +49,9 @@ class HomePageViewModel extends ChangeNotifier {
   append(String curr) {
     int pos = textEditingController.selection.start;
     String operation = textEditingController.text;
-    // scrollController.jumpTo(operation.length / 10);
-    if (operation.isEmpty) {
+    if (operation.isEmpty || pos == 0) {
       if (Elem.isNumber(curr)) {
-        operation = curr;
+        operation = curr + operation;
         pos++;
       }
     } else {

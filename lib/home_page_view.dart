@@ -10,75 +10,91 @@ class _HomePageState extends State<HomePage> {
   HomePageViewModel _homePageVM = HomePageViewModel();
 
   _regButton(String text) {
-    return GestureDetector(
-      onTap: () {
-        _homePageVM.memOp(text);
-        setState(() {});
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.grey[300],
-          border: Border.all(
+    return ElevatedButton(
+      child: Center(
+        child: Text(
+          text,
+          style: TextStyle(
+            fontSize: 35,
             color: Colors.grey,
-            width: 0.5,
-          ),
-        ),
-        child: Center(
-          child: Text(
-            text,
-            style: TextStyle(
-              fontSize: 35,
-              color: Colors.grey,
-            ),
           ),
         ),
       ),
+      style: ElevatedButton.styleFrom(
+        primary: Colors.grey[300],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.zero,
+          side: BorderSide(color: Colors.grey, width: 0.5),
+        ),
+      ),
+      onPressed: () {
+        _homePageVM.memOp(text);
+        setState(() {});
+      },
     );
   }
 
   _operandButton(String text) {
-    return GestureDetector(
-      onTap: () {
-        _homePageVM.append(text);
-        setState(() {});
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.grey[300],
-          border: Border.all(color: Colors.grey, width: 0.5),
-        ),
-        child: Center(
-          child: Text(
-            text,
-            style: TextStyle(
-              fontSize: 35,
-              color: Colors.indigo,
-            ),
+    return ElevatedButton(
+      child: Center(
+        child: Text(
+          text,
+          style: TextStyle(
+            fontSize: 35,
+            color: Colors.indigo,
           ),
         ),
       ),
+      style: ElevatedButton.styleFrom(
+        primary: Colors.grey[300],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.zero,
+          side: BorderSide(color: Colors.grey, width: 0.5),
+        ),
+      ),
+      onPressed: () {
+        _homePageVM.append(text);
+        setState(() {});
+      },
     );
   }
 
   _digitButton(String text) {
-    return GestureDetector(
-      onTap: () {
-        _homePageVM.append(text);
-        setState(() {});
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey, width: 0.5),
-        ),
-        child: Center(
-          child: Text(
-            text,
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 35),
+    return ElevatedButton(
+      child: Center(
+        child: Text(
+          text,
+          style: TextStyle(
+            fontSize: 35,
+            color: Colors.black,
           ),
         ),
       ),
+      style: ElevatedButton.styleFrom(
+        primary: Colors.white,
+        onPrimary: Colors.grey[300],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.zero,
+          side: BorderSide(color: Colors.grey, width: 0.5),
+        ),
+      ),
+      onPressed: () {
+        _homePageVM.append(text);
+        setState(() {});
+      },
     );
+  }
+
+  double _currFontSize = 60;
+  _fontSize(double screenWidth) {
+    if (_homePageVM.textEditingController.text.length * _currFontSize >
+        1.4 * screenWidth) {
+      if (_currFontSize > 40) _currFontSize -= 20;
+    } else if (_homePageVM.textEditingController.text.length * _currFontSize <
+        screenWidth) {
+      if (_currFontSize < 60) _currFontSize += 20;
+    }
+    return _currFontSize;
   }
 
   @override
@@ -123,7 +139,6 @@ class _HomePageState extends State<HomePage> {
                                   height: 85,
                                   width: MediaQuery.of(context).size.width,
                                   padding: EdgeInsets.only(top: 10),
-                                  // alignment: Alignment.centerRight,
                                   child: ListView(
                                     reverse: true,
                                     scrollDirection: Axis.horizontal,
@@ -141,13 +156,10 @@ class _HomePageState extends State<HomePage> {
                                           controller:
                                               _homePageVM.textEditingController,
                                           style: TextStyle(
-                                            fontSize: _homePageVM
-                                                        .textEditingController
-                                                        .text
-                                                        .length >
-                                                    10
-                                                ? 40
-                                                : 60,
+                                            fontSize: _fontSize(
+                                                MediaQuery.of(context)
+                                                    .size
+                                                    .width),
                                             letterSpacing: 5,
                                           ),
                                           decoration: InputDecoration(
@@ -195,17 +207,11 @@ class _HomePageState extends State<HomePage> {
                               children: [
                                 Expanded(child: _regButton('mc')),
                                 Expanded(
-                                    child: GestureDetector(
-                                  onTap: () {
-                                    _homePageVM.clear();
-                                    setState(() {});
-                                  },
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[300],
-                                      border: Border.all(
-                                          color: Colors.grey, width: 0.5),
-                                    ),
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      _homePageVM.clear();
+                                      setState(() {});
+                                    },
                                     child: Center(
                                       child: Text(
                                         'C',
@@ -215,8 +221,16 @@ class _HomePageState extends State<HomePage> {
                                         ),
                                       ),
                                     ),
+                                    style: ElevatedButton.styleFrom(
+                                      primary: Colors.grey[300],
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.zero,
+                                        side: BorderSide(
+                                            color: Colors.grey, width: 0.5),
+                                      ),
+                                    ),
                                   ),
-                                )),
+                                ),
                               ],
                             ),
                           ),
@@ -241,22 +255,23 @@ class _HomePageState extends State<HomePage> {
                               children: [
                                 Expanded(child: _regButton('mr')),
                                 Expanded(
-                                  child: GestureDetector(
-                                    onTap: () {
+                                  child: ElevatedButton(
+                                    onPressed: () {
                                       _homePageVM.backspace();
                                       setState(() {});
                                     },
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey[300],
-                                        border: Border.all(
-                                            color: Colors.grey, width: 0.5),
+                                    child: Center(
+                                      child: Icon(
+                                        Icons.backspace_outlined,
+                                        color: Colors.indigo,
                                       ),
-                                      child: Center(
-                                        child: Icon(
-                                          Icons.backspace_outlined,
-                                          color: Colors.indigo,
-                                        ),
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      primary: Colors.grey[300],
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.zero,
+                                        side: BorderSide(
+                                            color: Colors.grey, width: 0.5),
                                       ),
                                     ),
                                   ),
@@ -333,27 +348,26 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                           Expanded(
-                            child: GestureDetector(
-                              onTap: () {
+                            child: ElevatedButton(
+                              onPressed: () {
                                 _homePageVM.showResult();
                                 setState(() {});
                               },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.indigo,
-                                  border: Border.all(
-                                    color: Colors.grey,
-                                    width: 0.5,
+                              child: Center(
+                                child: Text(
+                                  '=',
+                                  style: TextStyle(
+                                    fontSize: 35,
+                                    color: Colors.white,
                                   ),
                                 ),
-                                child: Center(
-                                  child: Text(
-                                    '=',
-                                    style: TextStyle(
-                                      fontSize: 35,
-                                      color: Colors.white,
-                                    ),
-                                  ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                primary: Colors.indigo,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.zero,
+                                  side: BorderSide(
+                                      color: Colors.grey, width: 0.5),
                                 ),
                               ),
                             ),
