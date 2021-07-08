@@ -1,4 +1,5 @@
 import 'package:calculator/home_page_view_model.dart';
+import 'package:calculator/widgets/button.dart';
 import 'package:calculator/widgets/textfield_tween_animation.dart';
 import 'package:flutter/material.dart';
 
@@ -12,25 +13,14 @@ class _HomePageState extends State<HomePage> {
   late ScrollController _controller;
   late List<Widget> _widgetList;
   int _count = 0;
+  double? _screenWidth;
+  late Param _param;
 
   _regButton(String text) {
-    return ElevatedButton(
-      child: Center(
-        child: Text(
-          text,
-          style: TextStyle(
-            fontSize: 35,
-            color: Colors.grey,
-          ),
-        ),
-      ),
-      style: ElevatedButton.styleFrom(
-        primary: Colors.grey[300],
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.zero,
-          side: BorderSide(color: Colors.grey, width: 0.5),
-        ),
-      ),
+    return Button(
+      text: text,
+      backgroundColor: Colors.grey[300],
+      textColor: Colors.grey,
       onPressed: () {
         _homePageVM.memOp(text);
         updateFontSize();
@@ -40,23 +30,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   _operandButton(String text) {
-    return ElevatedButton(
-      child: Center(
-        child: Text(
-          text,
-          style: TextStyle(
-            fontSize: 35,
-            color: Colors.indigo,
-          ),
-        ),
-      ),
-      style: ElevatedButton.styleFrom(
-        primary: Colors.grey[300],
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.zero,
-          side: BorderSide(color: Colors.grey, width: 0.5),
-        ),
-      ),
+    return Button(
+      text: text,
+      backgroundColor: Colors.grey[300],
+      textColor: Colors.indigo,
       onPressed: () {
         _homePageVM.append(text);
         updateFontSize();
@@ -66,24 +43,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   _digitButton(String text) {
-    return ElevatedButton(
-      child: Center(
-        child: Text(
-          text,
-          style: TextStyle(
-            fontSize: 35,
-            color: Colors.black,
-          ),
-        ),
-      ),
-      style: ElevatedButton.styleFrom(
-        primary: Colors.white,
-        onPrimary: Colors.grey[300],
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.zero,
-          side: BorderSide(color: Colors.grey, width: 0.5),
-        ),
-      ),
+    return Button(
+      text: text,
+      backgroundColor: Colors.white,
+      onPressedColor: Colors.grey[300],
+      textColor: Colors.black,
       onPressed: () {
         _homePageVM.append(text);
         updateFontSize();
@@ -91,9 +55,6 @@ class _HomePageState extends State<HomePage> {
       },
     );
   }
-
-  double? _screenWidth;
-  late Param _param;
 
   updateFontSize() {
     if (_screenWidth != null) {
@@ -180,10 +141,6 @@ class _HomePageState extends State<HomePage> {
     if (_screenWidth == null) _screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 0,
-        backgroundColor: Colors.white,
-      ),
       body: SingleChildScrollView(
         child: Container(
           height: MediaQuery.of(context).size.height,
@@ -416,76 +373,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
-
-
-  // _opListView() {
-  //   if (_ansCount > 1) {
-  //     Future.delayed(Duration(milliseconds: 510), () {
-  //       _opCount--;
-  //       prevOp = _homePageVM.textEditingController.text;
-  //       setState(() {});
-  //     });
-  //   }
-  //   return ListView.builder(
-  //     physics: NeverScrollableScrollPhysics(),
-  //     controller: _opController,
-  //     padding: EdgeInsets.zero,
-  //     itemBuilder: (context, index) {
-  //       return ListView(
-  //         reverse: true,
-  //         scrollDirection: Axis.horizontal,
-  //         children: [
-  //           Container(
-  //             width: 1000,
-  //             child: TextField(
-  //               onChanged: (text) {
-  //                 setState(() {});
-  //               },
-  //               autofocus: true,
-  //               readOnly: true,
-  //               showCursor: true,
-  //               textAlign: TextAlign.right,
-  //               controller: _homePageVM.textEditingController,
-  //               style: TextStyle(
-  //                 fontSize: _fontSize(MediaQuery.of(context).size.width),
-  //                 letterSpacing: 5,
-  //               ),
-  //               decoration: InputDecoration(
-  //                 border: InputBorder.none,
-  //               ),
-  //             ),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //     itemCount: _opCount,
-  //   );
-  // }
-
-  // _ansListView() {
-  //   if (_ansCount > 1) {
-  //     Future.delayed(Duration(milliseconds: 510), () {
-  //       _ansCount--;
-  //       setState(() {});
-  //     });
-  //   }
-  //   return ListView.builder(
-  //     physics: NeverScrollableScrollPhysics(),
-  //     controller: _ansController,
-  //     padding: EdgeInsets.zero,
-  //     itemBuilder: (context, index) {
-  //       return Text(
-  //         index == 0
-  //             ? _homePageVM.textEditingController.text
-  //             : _homePageVM.answer,
-  //         textAlign: TextAlign.right,
-  //         style: TextStyle(
-  //           fontSize: 34,
-  //           color: Colors.grey,
-  //         ),
-  //       );
-  //     },
-  //     itemCount: _ansCount,
-  //   );
-  // }
