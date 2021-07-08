@@ -6,30 +6,30 @@ import 'utils/elem.dart';
 class HomePageViewModel extends ChangeNotifier {
   String mem = '';
   String _memVal = '0';
-  String answer = '';
 
-  TextEditingController textEditingController = TextEditingController();
+  TextEditingController opCtrl = TextEditingController();
+  TextEditingController ansCtrl = TextEditingController();
 
   memOp(String string) {
-    String operation = textEditingController.text;
+    String operation = opCtrl.text;
     switch (string) {
       case 'mc':
         mem = '';
         _memVal = '0';
         break;
       case 'm+':
-        if (answer.isNotEmpty) {
+        if (ansCtrl.text.isNotEmpty) {
           mem = 'M';
-          _memVal = Calculator.eval(_memVal + '+' + answer).toString();
+          _memVal = Calculator.eval(_memVal + '+' + ansCtrl.text).toString();
         } else if (operation.isNotEmpty) {
           mem = 'M';
           _memVal = Calculator.eval(_memVal + '+' + operation).toString();
         }
         break;
       case 'm−':
-        if (answer.isNotEmpty) {
+        if (ansCtrl.text.isNotEmpty) {
           mem = 'M';
-          _memVal = Calculator.eval(_memVal + '−' + answer).toString();
+          _memVal = Calculator.eval(_memVal + '−' + ansCtrl.text).toString();
         } else if (operation.isNotEmpty) {
           mem = 'M';
           _memVal = Calculator.eval(_memVal + '−' + operation).toString();
@@ -37,8 +37,8 @@ class HomePageViewModel extends ChangeNotifier {
         break;
       case 'mr':
         if (mem.isNotEmpty) {
-          textEditingController.text = _memVal;
-          textEditingController.selection = TextSelection(
+          opCtrl.text = _memVal;
+          opCtrl.selection = TextSelection(
               baseOffset: _memVal.length, extentOffset: _memVal.length);
         }
         break;
@@ -47,8 +47,8 @@ class HomePageViewModel extends ChangeNotifier {
   }
 
   append(String curr) {
-    int pos = textEditingController.selection.start;
-    String operation = textEditingController.text;
+    int pos = opCtrl.selection.start;
+    String operation = opCtrl.text;
     if (operation.isEmpty || pos == 0) {
       if (Elem.isNumber(curr)) {
         operation = curr + operation;
@@ -74,35 +74,32 @@ class HomePageViewModel extends ChangeNotifier {
       }
     }
 
-    textEditingController.text = operation;
-    textEditingController.selection =
-        TextSelection(baseOffset: pos, extentOffset: pos);
+    opCtrl.text = operation;
+    opCtrl.selection = TextSelection(baseOffset: pos, extentOffset: pos);
     _result();
   }
 
   backspace() {
-    int pos = textEditingController.selection.start;
+    int pos = opCtrl.selection.start;
     if (pos > 0) {
-      textEditingController.text =
-          textEditingController.text.replaceRange(pos - 1, pos, '');
+      opCtrl.text = opCtrl.text.replaceRange(pos - 1, pos, '');
       pos--;
     }
-    textEditingController.selection =
-        TextSelection(baseOffset: pos, extentOffset: pos);
+    opCtrl.selection = TextSelection(baseOffset: pos, extentOffset: pos);
     _result();
   }
 
   showResult() {
-    if (answer.isNotEmpty) {
-      textEditingController.text = answer;
-      textEditingController.selection =
-          TextSelection(baseOffset: answer.length, extentOffset: answer.length);
-      answer = '';
+    if (ansCtrl.text.isNotEmpty) {
+      opCtrl.text = ansCtrl.text;
+      opCtrl.selection = TextSelection(
+          baseOffset: ansCtrl.text.length, extentOffset: ansCtrl.text.length);
+      ansCtrl.text = '';
     }
   }
 
   _result() {
-    String operation = textEditingController.text;
+    String operation = opCtrl.text;
     if (operation.isNotEmpty) {
       int start = 0;
       int end = operation.length - 1;
@@ -114,20 +111,19 @@ class HomePageViewModel extends ChangeNotifier {
       if (op.isNotEmpty) {
         try {
           if (Elem.isNumber(op))
-            answer = '';
+            ansCtrl.text = '';
           else
-            answer = Calculator.eval(op).toString();
+            ansCtrl.text = Calculator.eval(op).toString();
         } catch (e) {
-          answer = 'Error';
+          ansCtrl.text = 'Error';
         }
       }
     }
   }
 
   clear() {
-    textEditingController.text = '';
-    textEditingController.selection =
-        TextSelection(baseOffset: 0, extentOffset: 0);
-    answer = '';
+    opCtrl.text = '';
+    opCtrl.selection = TextSelection(baseOffset: 0, extentOffset: 0);
+    ansCtrl.text = '';
   }
 }
