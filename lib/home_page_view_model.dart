@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'utils/calculator.dart';
 import 'utils/elem.dart';
 
-class HomePageViewModel extends ChangeNotifier {
+class HomePageViewModel {
   String mem = '';
   String _memVal = '0';
 

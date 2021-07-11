@@ -11,6 +11,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late HomePageViewModel _homePageVM;
   late ScrollController _controller;
+  late ScrollController _opScrollController;
+  late ScrollController _ansScrollController;
   late List<Widget> _widgetList;
   int _count = 0;
   double? _screenWidth;
@@ -23,8 +25,8 @@ class _HomePageState extends State<HomePage> {
       textColor: Colors.grey,
       onPressed: () {
         _homePageVM.memOp(text);
-        updateFontSize();
-        setState(() {});
+        _updateFontSize();
+        _scrollHorizontal();
       },
     );
   }
@@ -35,9 +37,7 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.grey[300],
       textColor: Colors.indigo,
       onPressed: () {
-        _homePageVM.append(text);
-        updateFontSize();
-        setState(() {});
+        _append(text);
       },
     );
   }
@@ -49,14 +49,12 @@ class _HomePageState extends State<HomePage> {
       onPressedColor: Colors.grey[300],
       textColor: Colors.black,
       onPressed: () {
-        _homePageVM.append(text);
-        updateFontSize();
-        setState(() {});
+        _append(text);
       },
     );
   }
 
-  updateFontSize() {
+  _updateFontSize() {
     if (_screenWidth != null) {
       if (_homePageVM.opCtrl.text.length * _param.fontSize! >
           1.4 * _screenWidth!) {
@@ -73,16 +71,38 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _scroll() {
+  void _append(String text) {
+    _homePageVM.append(text);
+    _updateFontSize();
+    _scrollHorizontal();
+  }
+
+  void _scrollHorizontal() {
+    setState(() {
+      _opScrollController.animateTo(
+        _opScrollController.position.minScrollExtent,
+        duration: Duration(milliseconds: 500),
+        curve: Curves.fastOutSlowIn,
+      );
+      _ansScrollController.animateTo(
+        _ansScrollController.position.minScrollExtent,
+        duration: Duration(milliseconds: 500),
+        curve: Curves.fastOutSlowIn,
+      );
+    });
+  }
+
+  void _scrollVertical() {
     _controller.animateTo(_controller.position.pixels + 85,
         duration: TextFieldTweenAnimation.duration,
         curve: Curves.fastOutSlowIn);
 
     _widgetList[(_count + 1) % _widgetList.length] = TextFieldTweenAnimation(
       param: Param.op(
-        controller: _homePageVM.ansCtrl.text == ''
+        textcontroller: _homePageVM.ansCtrl.text == ''
             ? _homePageVM.opCtrl
             : _homePageVM.ansCtrl,
+        scrollController: _opScrollController,
       ),
     );
 
@@ -103,7 +123,8 @@ class _HomePageState extends State<HomePage> {
         _widgetList[(_count + 1) % _widgetList.length] =
             TextFieldTweenAnimation(
           param: Param.ans(
-            controller: _homePageVM.ansCtrl,
+            textcontroller: _homePageVM.ansCtrl,
+            scrollController: _ansScrollController,
           ),
         );
         _widgetList[(_count + 2) % _widgetList.length] =
@@ -119,15 +140,23 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     _controller = ScrollController();
 
+    _opScrollController = ScrollController();
+
+    _ansScrollController = ScrollController();
+
     _homePageVM = HomePageViewModel();
 
-    _param = Param.op(controller: _homePageVM.opCtrl);
+    _param = Param.op(
+      textcontroller: _homePageVM.opCtrl,
+      scrollController: _opScrollController,
+    );
 
     _widgetList = [
       TextFieldTweenAnimation(param: _param),
       TextFieldTweenAnimation(
         param: Param.ans(
-          controller: _homePageVM.ansCtrl,
+          textcontroller: _homePageVM.ansCtrl,
+          scrollController: _ansScrollController,
         ),
       ),
       TextFieldTweenAnimation(
@@ -195,28 +224,14 @@ class _HomePageState extends State<HomePage> {
                               children: [
                                 Expanded(child: _regButton('mc')),
                                 Expanded(
-                                  child: ElevatedButton(
+                                  child: Button(
+                                    text: 'C',
+                                    backgroundColor: Colors.grey[300],
+                                    textColor: Colors.indigo,
                                     onPressed: () {
                                       _homePageVM.clear();
                                       setState(() {});
                                     },
-                                    child: Center(
-                                      child: Text(
-                                        'C',
-                                        style: TextStyle(
-                                          fontSize: 35,
-                                          color: Colors.indigo,
-                                        ),
-                                      ),
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      primary: Colors.grey[300],
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.zero,
-                                        side: BorderSide(
-                                            color: Colors.grey, width: 0.5),
-                                      ),
-                                    ),
                                   ),
                                 ),
                               ],
@@ -243,26 +258,17 @@ class _HomePageState extends State<HomePage> {
                               children: [
                                 Expanded(child: _regButton('mr')),
                                 Expanded(
-                                  child: ElevatedButton(
+                                  child: Button(
+                                    widget: Icon(
+                                      Icons.backspace_outlined,
+                                      color: Colors.indigo,
+                                    ),
+                                    backgroundColor: Colors.grey[300],
                                     onPressed: () {
                                       _homePageVM.backspace();
-                                      updateFontSize();
-                                      setState(() {});
+                                      _updateFontSize();
+                                      _scrollHorizontal();
                                     },
-                                    child: Center(
-                                      child: Icon(
-                                        Icons.backspace_outlined,
-                                        color: Colors.indigo,
-                                      ),
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      primary: Colors.grey[300],
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.zero,
-                                        side: BorderSide(
-                                            color: Colors.grey, width: 0.5),
-                                      ),
-                                    ),
                                   ),
                                 ),
                               ],
@@ -337,27 +343,14 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                           Expanded(
-                            child: ElevatedButton(
+                            child: Button(
+                              text: '=',
+                              backgroundColor: Colors.indigo,
+                              textColor: Colors.white,
                               onPressed: () {
-                                _scroll();
+                                _scrollHorizontal();
+                                _scrollVertical();
                               },
-                              child: Center(
-                                child: Text(
-                                  '=',
-                                  style: TextStyle(
-                                    fontSize: 35,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                primary: Colors.indigo,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.zero,
-                                  side: BorderSide(
-                                      color: Colors.grey, width: 0.5),
-                                ),
-                              ),
                             ),
                           ),
                         ],

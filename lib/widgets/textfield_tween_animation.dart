@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 class Param {
   bool autofocus;
   bool? showCursor;
-  TextEditingController? controller;
+  TextEditingController? textcontroller;
+  ScrollController? scrollController;
   double? height;
   double? fontSize;
   double? letterSpacing;
@@ -13,14 +14,15 @@ class Param {
   Param({
     this.autofocus = false,
     this.showCursor,
-    this.controller,
+    this.textcontroller,
+    this.scrollController,
     this.height,
     this.fontSize,
     this.letterSpacing,
     this.textColor,
   });
 
-  Param.ans({this.controller})
+  Param.ans({this.textcontroller, this.scrollController})
       : autofocus = false,
         showCursor = false,
         height = 40,
@@ -28,7 +30,7 @@ class Param {
         letterSpacing = 1,
         textColor = Colors.grey;
 
-  Param.op({this.controller})
+  Param.op({this.textcontroller, this.scrollController})
       : autofocus = true,
         showCursor = true,
         height = 85,
@@ -53,7 +55,8 @@ class TextFieldTweenAnimation extends StatelessWidget {
         return Container(
           height: height,
           child: ListView(
-            physics: NeverScrollableScrollPhysics(),
+            // physics: NeverScrollableScrollPhysics(),
+            controller: param.scrollController,
             scrollDirection: Axis.horizontal,
             reverse: true,
             children: [
@@ -77,7 +80,7 @@ class TextFieldTweenAnimation extends StatelessWidget {
                           readOnly: true,
                           showCursor: param.showCursor,
                           textAlign: TextAlign.right,
-                          controller: param.controller,
+                          controller: param.textcontroller,
                           style: TextStyle(
                             color: param.textColor,
                             fontSize: fontSize,

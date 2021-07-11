@@ -17,16 +17,18 @@ class Stream {
 
     if (!_stack.isEmpty) return _stack.pop();
 
-    if (_buffer[_index] == '−' || _buffer[_index] == '-') {
+    if (Elem.isSub(_buffer[_index])) {
+      // is -
       if (_index > 0) {
         String str = _buffer[_index - 1];
-        if (str != '×' && str != '*' && str != '÷' && str != '/') {
+        if (!Elem.isMul(str) && !Elem.isDiv(str)) {
+          // not * or /
           _stack.push(Elem(type: ElemType.num, value: _num));
           return Elem(type: ElemType.op, value: '+');
         }
       }
       return Elem(type: ElemType.num, value: _num);
-    } else if (Elem.isOperand(_buffer[_index]))
+    } else if (Elem.isOperand(_buffer[_index])) // is + or * or / or %
       return Elem(type: ElemType.op, value: _buffer[_index++]);
     else
       return Elem(type: ElemType.num, value: _num);
