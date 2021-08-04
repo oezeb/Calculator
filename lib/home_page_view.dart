@@ -172,6 +172,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
+          padding: EdgeInsets.only(top: 20),
           height: MediaQuery.of(context).size.height,
           width: _screenWidth,
           child: Column(
@@ -350,6 +351,7 @@ class _HomePageState extends State<HomePage> {
                               onPressed: () {
                                 _scrollHorizontal();
                                 _scrollVertical();
+                                _updateFontSize();
                               },
                             ),
                           ),
