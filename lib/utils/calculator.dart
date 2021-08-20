@@ -1,28 +1,28 @@
-import 'queue.dart';
-import 'stack.dart';
+import 'dart:collection';
+
 import 'elem.dart';
 import 'stream.dart';
 
 class Calculator {
   static num eval(String string) {
     Queue<Elem> queue = reversePolish(string);
-    Stack<num> stk = new Stack();
-    while (!queue.isEmpty) {
-      Elem elem = queue.dequeue();
+    Queue<num> stack = new Queue();
+    while (queue.isNotEmpty) {
+      Elem elem = queue.removeFirst();
       if (elem.type == ElemType.num) {
-        stk.push(parseNum(elem.value));
-      } else if (stk.length >= 2) {
-        num num2 = stk.pop();
-        num num1 = stk.pop();
-        stk.push(calculate(num1, num2, elem.value));
+        stack.addFirst(parseNum(elem.value));
+      } else if (stack.length >= 2) {
+        num num2 = stack.removeFirst();
+        num num1 = stack.removeFirst();
+        stack.addFirst(calculate(num1, num2, elem.value));
       } else {
         throw Exception();
       }
     }
 
-    if (stk.length != 1) throw Exception();
+    if (stack.length != 1) throw Exception();
 
-    return stk.pop();
+    return stack.removeFirst();
   }
 
   static Queue<Elem> reversePolish(String string) {
@@ -30,29 +30,29 @@ class Calculator {
   }
 
   static Queue<Elem> _reversePolish(Stream stream) {
-    Stack<Elem> stk = Stack();
-    Queue<Elem> queue = new Queue();
+    Queue<Elem> stack = Queue();
+    Queue<Elem> queue = Queue();
 
     while (stream.hasNext) {
       Elem elem = stream.next;
       if (elem.value == '%') {
-        queue.enqueue(Elem(type: ElemType.num, value: '100'));
-        queue.enqueue(Elem(type: ElemType.op, value: '÷'));
+        queue.addLast(Elem(type: ElemType.num, value: '100'));
+        queue.addLast(Elem(type: ElemType.op, value: '÷'));
       } else if (elem.type == ElemType.num) {
-        queue.enqueue(elem);
+        queue.addLast(elem);
 
-        if (!stk.isEmpty) {
-          String sym = stk.top.value;
+        if (stack.isNotEmpty) {
+          String sym = stack.first.value;
           if (sym == '×' || sym == '*' || sym == '÷' || sym == '/')
-            queue.enqueue(stk.pop());
+            queue.addLast(stack.removeFirst());
         }
       } else {
-        stk.push(elem);
+        stack.addFirst(elem);
       }
     }
 
-    stk.toList().forEach((elem) {
-      queue.enqueue(elem);
+    stack.toList().forEach((elem) {
+      queue.addLast(elem);
     });
 
     return queue;

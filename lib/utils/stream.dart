@@ -1,21 +1,22 @@
+import 'dart:collection';
+
 import 'elem.dart';
-import 'stack.dart';
 
 class Stream {
   String _buffer;
   int _index;
-  Stack<Elem> _stack;
+  Queue<Elem> _stack;
 
   Stream(this._buffer)
       : _index = 0,
-        _stack = Stack();
+        _stack = Queue();
 
-  bool get hasNext => _index < _buffer.length || !_stack.isEmpty;
+  bool get hasNext => _index < _buffer.length || _stack.isNotEmpty;
 
   Elem get next {
     if (!hasNext) throw new Exception("End Of Stream");
 
-    if (!_stack.isEmpty) return _stack.pop();
+    if (_stack.isNotEmpty) return _stack.removeFirst();
 
     if (Elem.isSub(_buffer[_index])) {
       // is -
@@ -23,7 +24,7 @@ class Stream {
         String str = _buffer[_index - 1];
         if (!Elem.isMul(str) && !Elem.isDiv(str)) {
           // not * or /
-          _stack.push(Elem(type: ElemType.num, value: _num));
+          _stack.addFirst(Elem(type: ElemType.num, value: _num));
           return Elem(type: ElemType.op, value: '+');
         }
       }
