@@ -5,16 +5,16 @@ import 'stream.dart';
 
 class Calculator {
   static num eval(String string) {
-    Queue<String> queue = reversePolish(string);
+    Queue<Elem> queue = reversePolish(string);
     Queue<num> stack = new Queue();
     while (queue.isNotEmpty) {
-      String str = queue.removeFirst();
-      if (Elem(str).isOperand && stack.length >= 2) {
+      Elem elem = queue.removeFirst();
+      if (stack.length >= 2 && (elem.isAdd || elem.isMul || elem.isDiv)) {
         num num2 = stack.removeFirst();
         num num1 = stack.removeFirst();
-        stack.addFirst(calculate(num1, num2, str));
-      } else if (Elem(str).isNumber) {
-        stack.addFirst(parseNum(str));
+        stack.addFirst(calculate(num1, num2, elem.value));
+      } else if (elem.isNumber) {
+        stack.addFirst(parseNum(elem.value));
       } else {
         throw Exception();
       }
@@ -25,33 +25,30 @@ class Calculator {
     return stack.removeFirst();
   }
 
-  static Queue<String> reversePolish(String string) {
+  static Queue<Elem> reversePolish(String string) {
     return _reversePolish(Stream(string));
   }
 
-  static Queue<String> _reversePolish(Stream stream) {
-    Queue<String> stack = Queue();
-    Queue<String> queue = Queue();
+  static Queue<Elem> _reversePolish(Stream stream) {
+    Queue<Elem> stack = Queue();
+    Queue<Elem> queue = Queue();
 
     while (stream.hasNext) {
-      String next = stream.next;
-      if (Elem(next).isPercent) {
-        queue.addLast('100');
-        queue.addLast('÷');
-      } else if (Elem(next).isOperand) {
-        stack.addFirst(next);
+      Elem elem = Elem(stream.next);
+      if (elem.isAdd || elem.isMul || elem.isDiv) {
+        stack.addFirst(elem);
       } else {
-        queue.addLast(next);
+        queue.addLast(elem);
 
         if (stack.isNotEmpty) {
-          if (Elem(stack.first).isMul || Elem(stack.first).isDiv)
+          if (stack.first.isMul || stack.first.isDiv)
             queue.addLast(stack.removeFirst());
         }
       }
     }
 
-    stack.toList().forEach((elem) {
-      queue.addLast(elem);
+    stack.toList().forEach((e) {
+      queue.addLast(e);
     });
 
     return queue;
@@ -66,8 +63,19 @@ class Calculator {
   }
 
   static num parseNum(String string) {
-    int start = string.length > 0 && Elem(string[0]).isSub ? 1 : 0;
-    num ans = num.parse(string.substring(start));
-    return start == 0 ? ans : -ans;
+    try {
+      return num.parse(string);
+    } catch (err) {
+      int len = string.length;
+      if (len > 0) {
+        if (Elem(string[0]).isSub) {
+          return -parseNum(string.substring(1));
+        }
+        if (Elem(string[string.length - 1]).isPercent) {
+          return parseNum(string.substring(0, string.length - 1)) / 100.0;
+        }
+      }
+      throw err;
+    }
   }
 }

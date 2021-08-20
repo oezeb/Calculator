@@ -6,10 +6,10 @@ class Elem {
       : _value = value,
         _isNumber = null;
 
-  // String get value => _value;
+  String get value => _value;
 
   bool get isDigit => _value.length == 1 && _value.contains(RegExp('[0-9]'));
-  bool get isOperand => isAdd || isSub || isMul || isDiv || isPercent;
+  bool get isOperand => isAdd || isSub || isMul || isDiv;
   bool get isMul => _value == '×' || _value == '*';
   bool get isDiv => _value == '÷' || _value == '/';
   bool get isAdd => _value == '+';
@@ -21,8 +21,10 @@ class Elem {
 
     int index = 0;
     // first element is + || -
-    if (Elem(_value[index]).isAdd || Elem(_value[index]).isSub) index++;
-    //
+    if (index < _value.length) {
+      if (Elem(_value[index]).isAdd || Elem(_value[index]).isSub) index++;
+    }
+    // digits
     while (index < _value.length) {
       if (Elem(_value[index]).isDigit ||
           Elem(_value[index]).isDot) // [0-9] || .
@@ -30,6 +32,11 @@ class Elem {
       else
         break;
     }
+    // last element is %
+    if (index < _value.length) {
+      if (Elem(_value[index]).isPercent) index++;
+    }
+
     _isNumber = index == _value.length;
     return _isNumber!;
   }

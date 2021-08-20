@@ -19,19 +19,20 @@ class Stream {
 
     if (_stack.isNotEmpty) return _stack.removeFirst();
 
-    if (Elem(_buffer[_index]).isSub) {
+    Elem elem = Elem(_buffer[_index]);
+    if (elem.isSub) {
       // is -
       if (_index > 0) {
-        String str = _buffer[_index - 1];
-        if (!Elem(str).isMul && !Elem(str).isDiv) {
+        elem = Elem(_buffer[_index - 1]);
+        if (!elem.isMul && !elem.isDiv) {
           // not * or /
           _stack.addFirst(_nextNum);
           return '+';
         }
       }
       return _nextNum;
-    } else if (Elem(_buffer[_index]).isOperand) {
-      // is + or * or / or %
+    } else if (elem.isAdd || elem.isMul || elem.isDiv) {
+      // is + or * or /
       return _buffer[_index++];
     } else {
       return _nextNum;
@@ -41,13 +42,18 @@ class Stream {
   String get _nextNum {
     StringBuffer val = new StringBuffer('');
 
-    if (Elem(_buffer[_index]).isSub) val.write(_buffer[_index++]);
+    Elem elem = Elem(_buffer[_index]);
+    if (elem.isSub) val.write(_buffer[_index++]);
 
-    while (_index < _buffer.length)
-      if (Elem(_buffer[_index]).isDigit || Elem(_buffer[_index]).isDot)
+    while (_index < _buffer.length) {
+      elem = Elem(_buffer[_index]);
+      if (elem.isDigit || elem.isDot) {
         val.write(_buffer[_index++]);
-      else
+      } else {
+        if (elem.isPercent) val.write(_buffer[_index++]);
         break;
+      }
+    }
 
     return val.toString();
   }

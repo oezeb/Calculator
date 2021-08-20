@@ -18,7 +18,7 @@ class HomePageViewModel {
           baseOffset: _memVal.length,
           extentOffset: _memVal.length,
         );
-        _result();
+        ansCtrl.text = eval(opCtrl.text);
       }
     } else if (string == 'mc') {
       mem = '';
@@ -50,37 +50,38 @@ class HomePageViewModel {
     }
   }
 
-  append(String curr) {
+  append(String string) {
+    Elem curr = Elem(string);
     int pos = opCtrl.selection.start;
     String operation = opCtrl.text;
     if (operation.isEmpty || pos == 0) {
-      if (Elem(curr).isNumber) {
-        operation = curr + operation;
+      if (curr.isNumber) {
+        operation = curr.value + operation;
         pos++;
       }
     } else {
-      String prev = operation[pos - 1];
-      if (!Elem(prev).isPercent && Elem(prev).isOperand) {
-        if (!Elem(curr).isPercent && Elem(curr).isOperand) {
-          if (Elem(curr).isSub && (Elem(prev).isMul || Elem(prev).isDiv)) {
-            operation = operation.replaceRange(pos, pos, curr);
+      Elem prev = Elem(operation[pos - 1]);
+      if (prev.isOperand) {
+        if (curr.isOperand) {
+          if (curr.isSub && (prev.isMul || prev.isDiv)) {
+            operation = operation.replaceRange(pos, pos, curr.value);
             pos++;
           } else {
-            operation = operation.replaceRange(pos - 1, pos, curr);
+            operation = operation.replaceRange(pos - 1, pos, curr.value);
           }
         } else {
-          operation = operation.replaceRange(pos, pos, curr);
+          operation = operation.replaceRange(pos, pos, curr.value);
           pos++;
         }
       } else {
-        operation = operation.replaceRange(pos, pos, curr);
+        operation = operation.replaceRange(pos, pos, curr.value);
         pos++;
       }
     }
 
     opCtrl.text = operation;
     opCtrl.selection = TextSelection(baseOffset: pos, extentOffset: pos);
-    _result();
+    ansCtrl.text = eval(opCtrl.text);
   }
 
   backspace() {
@@ -90,7 +91,7 @@ class HomePageViewModel {
       pos--;
     }
     opCtrl.selection = TextSelection(baseOffset: pos, extentOffset: pos);
-    _result();
+    ansCtrl.text = eval(opCtrl.text);
   }
 
   showResult() {
@@ -102,27 +103,31 @@ class HomePageViewModel {
     }
   }
 
-  _result() {
-    String operation = opCtrl.text;
+  static String eval(String operation) {
     if (operation.isNotEmpty) {
       int start = 0;
       int end = operation.length - 1;
       String op;
-      if (!Elem(operation[end]).isPercent && Elem(operation[end]).isOperand)
-        end--;
+      if (Elem(operation[end]).isOperand) end--;
       if (Elem(operation[0]).isPercent) start++;
       op = operation.substring(start, end + 1);
       if (op.isNotEmpty) {
         try {
-          if (Elem(op).isNumber)
-            ansCtrl.text = '';
-          else
-            ansCtrl.text = Calculator.eval(op).toString();
+          if (!Elem(op).isNumber || Elem(op[op.length - 1]).isPercent) {
+            num res = Calculator.eval(op);
+            if (res - res.toInt() == 0.0) res = res.toInt();
+            if (res < 0)
+              return '−' + res.abs().toString();
+            else
+              return res.toString();
+          }
         } catch (e) {
-          ansCtrl.text = 'Error';
+          print(e);
+          return 'Error';
         }
       }
     }
+    return '';
   }
 
   clear() {
