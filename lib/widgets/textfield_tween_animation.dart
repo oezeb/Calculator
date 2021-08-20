@@ -41,7 +41,7 @@ class Param {
 
 class TextFieldTweenAnimation extends StatelessWidget {
   final Param param;
-  static Duration duration = Duration(seconds: 1);
+  static const Duration duration = Duration(seconds: 1);
 
   TextFieldTweenAnimation({required this.param});
 
@@ -55,7 +55,6 @@ class TextFieldTweenAnimation extends StatelessWidget {
         return Container(
           height: height,
           child: ListView(
-            // physics: NeverScrollableScrollPhysics(),
             controller: param.scrollController,
             scrollDirection: Axis.horizontal,
             reverse: true,

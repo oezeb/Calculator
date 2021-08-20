@@ -11,54 +11,58 @@ class HomePageViewModel {
   TextEditingController ansCtrl = TextEditingController();
 
   memOp(String string) {
-    String operation = opCtrl.text;
-    switch (string) {
-      case 'mc':
-        mem = '';
-        _memVal = '0';
-        break;
-      case 'm+':
-        if (ansCtrl.text.isNotEmpty) {
+    if (string == 'mr') {
+      if (mem.isNotEmpty) {
+        opCtrl.text = _memVal;
+        opCtrl.selection = TextSelection(
+          baseOffset: _memVal.length,
+          extentOffset: _memVal.length,
+        );
+        _result();
+      }
+    } else if (string == 'mc') {
+      mem = '';
+      _memVal = '0';
+    } else {
+      String operation = opCtrl.text;
+      if (ansCtrl.text.isNotEmpty) operation = ansCtrl.text;
+
+      num a, b;
+      try {
+        a = Calculator.eval(_memVal);
+        b = Calculator.eval(operation);
+      } catch (err) {
+        print(err);
+        mem = 'Error';
+        return;
+      }
+
+      switch (string) {
+        case 'm+':
+          _memVal = (a + b).toString();
           mem = 'M';
-          _memVal = Calculator.eval(_memVal + '+' + ansCtrl.text).toString();
-        } else if (operation.isNotEmpty) {
+          break;
+        case 'm−':
+          _memVal = (a - b).toString();
           mem = 'M';
-          _memVal = Calculator.eval(_memVal + '+' + operation).toString();
-        }
-        break;
-      case 'm−':
-        if (ansCtrl.text.isNotEmpty) {
-          mem = 'M';
-          _memVal = Calculator.eval(_memVal + '−' + ansCtrl.text).toString();
-        } else if (operation.isNotEmpty) {
-          mem = 'M';
-          _memVal = Calculator.eval(_memVal + '−' + operation).toString();
-        }
-        break;
-      case 'mr':
-        if (mem.isNotEmpty) {
-          opCtrl.text = _memVal;
-          opCtrl.selection = TextSelection(
-              baseOffset: _memVal.length, extentOffset: _memVal.length);
-        }
-        break;
+          break;
+      }
     }
-    _result();
   }
 
   append(String curr) {
     int pos = opCtrl.selection.start;
     String operation = opCtrl.text;
     if (operation.isEmpty || pos == 0) {
-      if (Elem.isNumber(curr)) {
+      if (Elem(curr).isNumber) {
         operation = curr + operation;
         pos++;
       }
     } else {
       String prev = operation[pos - 1];
-      if (!Elem.isPercent(prev) && Elem.isOperand(prev)) {
-        if (!Elem.isPercent(curr) && Elem.isOperand(curr)) {
-          if (Elem.isSub(curr) && (Elem.isMul(prev) || Elem.isDiv(prev))) {
+      if (!Elem(prev).isPercent && Elem(prev).isOperand) {
+        if (!Elem(curr).isPercent && Elem(curr).isOperand) {
+          if (Elem(curr).isSub && (Elem(prev).isMul || Elem(prev).isDiv)) {
             operation = operation.replaceRange(pos, pos, curr);
             pos++;
           } else {
@@ -104,13 +108,13 @@ class HomePageViewModel {
       int start = 0;
       int end = operation.length - 1;
       String op;
-      if (!Elem.isPercent(operation[end]) && Elem.isOperand(operation[end]))
+      if (!Elem(operation[end]).isPercent && Elem(operation[end]).isOperand)
         end--;
-      if (Elem.isPercent(operation[0])) start++;
+      if (Elem(operation[0]).isPercent) start++;
       op = operation.substring(start, end + 1);
       if (op.isNotEmpty) {
         try {
-          if (Elem.isNumber(op))
+          if (Elem(op).isNumber)
             ansCtrl.text = '';
           else
             ansCtrl.text = Calculator.eval(op).toString();

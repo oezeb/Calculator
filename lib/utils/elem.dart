@@ -1,35 +1,39 @@
-enum ElemType { num, op }
-
 class Elem {
-  ElemType type;
-  String value;
+  final String _value;
+  bool? _isNumber;
 
-  Elem({this.type = ElemType.num, this.value = ''});
+  Elem(String value)
+      : _value = value,
+        _isNumber = null;
 
-  static bool isOperand(String str) =>
-      isAdd(str) || isSub(str) || isMul(str) || isDiv(str) || isPercent(str);
+  // String get value => _value;
 
-  static bool isDigit(String str) =>
-      str.length == 1 && str.contains(RegExp('[0-9]'));
+  bool get isDigit => _value.length == 1 && _value.contains(RegExp('[0-9]'));
+  bool get isOperand => isAdd || isSub || isMul || isDiv || isPercent;
+  bool get isMul => _value == '×' || _value == '*';
+  bool get isDiv => _value == '÷' || _value == '/';
+  bool get isAdd => _value == '+';
+  bool get isSub => _value == '−' || _value == '-';
+  bool get isPercent => _value == '%';
+  bool get isDot => _value == '.';
+  bool get isNumber {
+    if (_isNumber != null) return _isNumber!;
 
-  static bool isNumber(String str) {
     int index = 0;
-    if (isAdd(str[index]) || isSub(str[index])) index++; // + || -
-    while (index < str.length)
-      if (isDigit(str[index]) || isDot(str[index])) // [0-9] || .
+    // first element is + || -
+    if (Elem(_value[index]).isAdd || Elem(_value[index]).isSub) index++;
+    //
+    while (index < _value.length) {
+      if (Elem(_value[index]).isDigit ||
+          Elem(_value[index]).isDot) // [0-9] || .
         index++;
       else
         break;
-    return index == str.length;
+    }
+    _isNumber = index == _value.length;
+    return _isNumber!;
   }
 
-  static bool isMul(String str) => str == '×' || str == '*';
-  static bool isDiv(String str) => str == '÷' || str == '/';
-  static bool isAdd(String str) => str == '+';
-  static bool isSub(String str) => str == '−' || str == '-';
-  static bool isPercent(String str) => str == '%';
-  static bool isDot(String str) => str == '.';
-
   @override
-  String toString() => value;
+  String toString() => _value;
 }
